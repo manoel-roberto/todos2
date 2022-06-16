@@ -11,11 +11,11 @@ app.use(express.json());
 // const users = [];
 
 function checksExistsUserAccount(request, response, next) {
-  // Complete aqui
+  // Primeiro teste
 }
 
 app.post('/users', (request, response) => {
-  // Complete aqui
+  // Segundo teste
 });
 
 app.get('/todos', checksExistsUserAccount, (request, response) => {
