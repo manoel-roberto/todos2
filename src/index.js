@@ -22,6 +22,23 @@ function checksExistsUserAccount(request, response, next) {
   return next();
 }
 
+/* function checksExistsTasks(request, response, next) {
+  const { id } = request.params;
+  const { user } = request;
+
+  const todo = user.todos.find((todo) => todo.id === id);
+
+  if(!todo){
+    return response.status(404).json({ error: "task does not exist"})
+  }
+
+  request.todo = todo;
+  
+
+  return next;
+} */
+
+
 app.post('/users', (request, response) => {
   const { name, username} = request.body;
   
@@ -40,7 +57,7 @@ app.post('/users', (request, response) => {
 
   users.push(user)
 
-  return response.status(201).send({ message: "User created successfully!"})
+  return response.status(201).send(user)
 
 });
 
@@ -75,19 +92,54 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
 
   user.todos.push(todo);
 
-  return response.status(201).json({ message: "task created successfully"});
+  return response.status(201).json(todo)
 });
 
 app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { user } = request;
+  const { id } = request.params;
+  const { title, deadline} = request.body;
+
+  const todo = user.todos.find((todo) => todo.id === id);
+  if(!todo){
+    return response.status(404).json({ error: "task does not exist"})
+  }
+
+  todo.title = title;
+  todo.deadline = new Date(deadline);
+
+  return response.status(201).json(todo);
 });
 
 app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { user } = request;
+  const { id } = request.params;
+
+  const todo = user.todos.find((todo) => todo.id === id);
+  
+  if(!todo){
+    return response.status(404).json({ error: "task does not exist"})
+  }
+
+  todo.done = true;
+
+  return response.status(201).json(todo);
 });
 
 app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
-  // Complete aqui
+  const { user } = request;
+  const { id } = request.params;
+
+  const todo = user.todos.find((todo) => todo.id === id);
+
+  if(!todo){
+    return response.status(404).json({error: "Tarefa não existe!"})
+  }
+
+  user.todos.splice(user.todos.indexOf(todo), 1)
+
+  return response.status(204).json(user.todos);
+  
 });
 
 module.exports = app;
