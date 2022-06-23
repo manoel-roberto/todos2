@@ -22,11 +22,14 @@ function checksExistsUserAccount(request, response, next) {
   return next();
 }
 
-/* function checksExistsTasks(request, response, next) {
+function checksExistsTasks(request, response, next) {
   const { id } = request.params;
   const { user } = request;
 
-  const todo = user.todos.find((todo) => todo.id === id);
+  const todos = user.todos;
+  
+
+  const todo = todos.find((todo) => todo.id === id);
 
   if(!todo){
     return response.status(404).json({ error: "task does not exist"})
@@ -35,8 +38,8 @@ function checksExistsUserAccount(request, response, next) {
   request.todo = todo;
   
 
-  return next;
-} */
+  return next();
+}
 
 
 app.post('/users', (request, response) => {
@@ -95,46 +98,26 @@ app.post('/todos', checksExistsUserAccount, (request, response) => {
   return response.status(201).json(todo)
 });
 
-app.put('/todos/:id', checksExistsUserAccount, (request, response) => {
-  const { user } = request;
-  const { id } = request.params;
+app.put('/todos/:id', checksExistsUserAccount, checksExistsTasks, (request, response) => {
+  const { todo } = request;
   const { title, deadline} = request.body;
-
-  const todo = user.todos.find((todo) => todo.id === id);
-  if(!todo){
-    return response.status(404).json({ error: "task does not exist"})
-  }
-
+  
   todo.title = title;
   todo.deadline = new Date(deadline);
 
   return response.status(201).json(todo);
 });
 
-app.patch('/todos/:id/done', checksExistsUserAccount, (request, response) => {
-  const { user } = request;
-  const { id } = request.params;
-
-  const todo = user.todos.find((todo) => todo.id === id);
-  
-  if(!todo){
-    return response.status(404).json({ error: "task does not exist"})
-  }
+app.patch('/todos/:id/done', checksExistsUserAccount, checksExistsTasks,  (request, response) => {
+  const { todo } = request;
 
   todo.done = true;
 
   return response.status(201).json(todo);
 });
 
-app.delete('/todos/:id', checksExistsUserAccount, (request, response) => {
-  const { user } = request;
-  const { id } = request.params;
-
-  const todo = user.todos.find((todo) => todo.id === id);
-
-  if(!todo){
-    return response.status(404).json({error: "Tarefa não existe!"})
-  }
+app.delete('/todos/:id', checksExistsUserAccount, checksExistsTasks, (request, response) => {
+  const { user, todo} = request;
 
   user.todos.splice(user.todos.indexOf(todo), 1)
 
